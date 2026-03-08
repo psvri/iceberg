@@ -791,17 +791,15 @@ public class TestAggregatePushDown extends CatalogTestBase {
         .as("Data files should contain nan count, lower bound and upper bound.")
         .allMatch(row -> Arrays.equals(row, expectedResult));
 
-    // Check aggregates are not pushdown
+    // Check aggregates are not pushed down
     String select = "SELECT count(*), max(data), min(data), count(data) FROM %s";
 
     List<Object[]> explain = sql("EXPLAIN " + select, tableName);
     String explainString = explain.get(0)[0].toString().toLowerCase(Locale.ROOT);
-    boolean explainContainsPushDownAggregates = false;
-    if (explainString.contains("max(data)")
-        || explainString.contains("min(data)")
-        || explainString.contains("count(data)")) {
-      explainContainsPushDownAggregates = true;
-    }
+    boolean explainContainsPushDownAggregates =
+        (explainString.contains("max(data)")
+            || explainString.contains("min(data)")
+            || explainString.contains("count(data)"));
 
     assertThat(explainContainsPushDownAggregates)
         .as("explain should not contain the pushed down aggregates")
