@@ -40,8 +40,7 @@ public class MinAggregate<T> extends ValueAggregate<T> {
 
   @Override
   protected boolean hasValue(DataFile file) {
-    // If nanValueCounts > 0 , it could be -NaN or NaN and hence we cant conclude the min value is
-    // -NaN
+    // Can't determine min from metadata when NaN values are present since it could be -NaN or +NaN
     if (containsNan(file, fieldId)) {
       return false;
     }
