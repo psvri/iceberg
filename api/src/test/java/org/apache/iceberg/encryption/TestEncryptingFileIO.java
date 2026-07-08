@@ -19,6 +19,7 @@
 package org.apache.iceberg.encryption;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -27,9 +28,11 @@ import static org.mockito.Mockito.withSettings;
 import java.io.Closeable;
 import java.util.List;
 import java.util.Map;
+import org.apache.iceberg.DataFile;
 import org.apache.iceberg.io.DelegateFileIO;
 import org.apache.iceberg.io.FileIO;
 import org.apache.iceberg.io.FileInfo;
+import org.apache.iceberg.io.InputFile;
 import org.apache.iceberg.io.SupportsBulkOperations;
 import org.apache.iceberg.io.SupportsPrefixOperations;
 import org.junit.jupiter.api.Test;
@@ -159,5 +162,25 @@ public class TestEncryptingFileIO {
 
     assertThat(EncryptingFileIO.combine(io, em).properties())
         .containsExactly(Map.entry("key", "value"));
+  }
+
+  @Test
+  public void bulkDecryptCallsAppropriateApis() {
+    EncryptionManager em = mock(EncryptionManager.class);
+    when(em.decrypt((Iterable<EncryptedInputFile>) any())).thenCallRealMethod();
+
+    FileIO io = mock(FileIO.class);
+
+    InputFile inputFile = mock(InputFile.class);
+    String location = "s3a://bucket/path";
+    when(inputFile.location()).thenReturn(location);
+
+    EncryptingFileIO fileIO = EncryptingFileIO.combine(io, em);
+    when(em.decrypt((EncryptedInputFile) any())).thenReturn(inputFile);
+
+    DataFile dataFile = mock(DataFile.class);
+
+    fileIO.bulkDecrypt(List.of(dataFile));
+    verify(io).newInputFile(dataFile);
   }
 }

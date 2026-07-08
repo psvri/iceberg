@@ -21,6 +21,7 @@ package org.apache.iceberg.spark.source;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import org.apache.iceberg.DataFile;
 import org.apache.iceberg.io.FileIO;
 import org.junit.jupiter.api.Test;
 
@@ -47,5 +48,16 @@ class TestSerializableFileIOWithSize {
     serializableFileIO.newInputFile(path);
 
     verify(mockFileIO).newInputFile(path);
+  }
+
+  @Test
+  void newInputDataFile() {
+    FileIO mockFileIO = mock(FileIO.class);
+    FileIO serializableFileIO = SerializableFileIOWithSize.wrap(mockFileIO);
+    DataFile dataFile = mock(DataFile.class);
+
+    serializableFileIO.newInputFile(dataFile);
+
+    verify(mockFileIO).newInputFile(dataFile);
   }
 }

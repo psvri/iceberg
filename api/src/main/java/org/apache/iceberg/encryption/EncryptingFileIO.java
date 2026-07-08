@@ -171,7 +171,12 @@ public class EncryptingFileIO implements FileIO, Serializable {
   }
 
   private SimpleEncryptedInputFile wrap(ContentFile<?> file) {
-    InputFile encryptedInputFile = io.newInputFile(file.location(), file.fileSizeInBytes());
+    InputFile encryptedInputFile;
+    if (file instanceof DataFile dataFile) {
+      encryptedInputFile = io.newInputFile(dataFile);
+    } else {
+      encryptedInputFile = io.newInputFile(file.location(), file.fileSizeInBytes());
+    }
     return new SimpleEncryptedInputFile(encryptedInputFile, toKeyMetadata(file.keyMetadata()));
   }
 
