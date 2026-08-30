@@ -21,6 +21,7 @@ package org.apache.iceberg.spark.source;
 import java.util.Map;
 import java.util.function.Function;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.iceberg.DataFile;
 import org.apache.iceberg.hadoop.HadoopConfigurable;
 import org.apache.iceberg.io.FileIO;
 import org.apache.iceberg.io.InputFile;
@@ -77,6 +78,11 @@ class SerializableFileIOWithSize
   @Override
   public InputFile newInputFile(String path, long length) {
     return fileIO.newInputFile(path, length);
+  }
+
+  @Override
+  public InputFile newInputFile(DataFile file) {
+    return fileIO.newInputFile(file);
   }
 
   @Override
